@@ -75,7 +75,12 @@ export default class ReactQuillEditor extends React.Component {
 			{
 				editor: new Quill('#editor', {
 					theme: theme ? theme : 'snow',
-					bounds: '#Quill-Editor-Container'
+					bounds: '#Quill-Editor-Container',
+                    modules: {
+                        toolbar: [
+                            ['image', 'bold', 'italic', 'underline', 'strike', 'clean', { 'align': [] }, { 'color': [] }, { 'background': [] }],
+                        ]
+                    }
 				})
 			},
 			() => {
@@ -150,8 +155,6 @@ export default class ReactQuillEditor extends React.Component {
 					case 'SEND_EDITOR':
 						this.addMessageToQueue('EDITOR_SENT', { editor: this.state.editor });
 						break;
-					case 'SEND_EDITOR':
-						this.addMessageToQueue('EDITOR_SENT', {viewer: this.state.editor});
 					case 'GET_DELTA':
 						this.addMessageToQueue('RECEIVE_DELTA', {
 							type: 'success',
@@ -177,8 +180,26 @@ export default class ReactQuillEditor extends React.Component {
 							this.sendNextMessage();
 						});
 						break;
+                    case 'SET_CUSTOM_IMAGE_HANDLER':
+                        this.printElement(`received SET_CUSTOM_IMAGE_HANDLER`);
+                        this.state.editor.getModule('toolbar').handlers.image = () => {
+                            this.addMessageToQueue('CALL_CUSTOM_IMAGE_HANDLER', {
+                                type: 'success',
+                            });
+                        };
+                        break;
+                    case 'APPEND_IMAGE':
+                        this.printElement(`received APPEND_IMAGE`);
+                        const range = this.state.editor.getSelection();
+                        let index = 0;
+                        if (range) {
+                            index = range.index;
+                        }
+
+                        this.state.editor.insertEmbed(index, 'image', msgData.payload.image);
+                        break;
 					default:
-						printElement(`reactQuillEditor Error: Unhandled message type received "${msgData.type}"`);
+						this.printElement(`reactQuillEditor Error: Unhandled message type received "${msgData.type}"`);
 				}
 			}
 		} catch (err) {
