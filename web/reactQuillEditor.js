@@ -188,6 +188,10 @@ export default class ReactQuillEditor extends React.Component {
                             });
                         };
                         break;
+                    case 'SET_PLACEHOLDER':
+                        this.printElement(`received SET_PLACEHOLDER`);
+                        this.state.editor.root.dataset.placeholder = msgData.payload.placeholder;
+                        break;
                     case 'APPEND_IMAGE':
                         this.printElement(`received APPEND_IMAGE`);
                         const range = this.state.editor.getSelection();
