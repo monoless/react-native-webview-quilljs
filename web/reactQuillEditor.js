@@ -165,7 +165,10 @@ export default class ReactQuillEditor extends React.Component {
 						this.state.editor.setContents(msgData.payload.delta);
 						break;
 					case 'SET_HTML_CONTENTS':
-						this.state.editor.clipboard.dangerouslyPasteHTML(msgData.payload.html);
+					    const convert = this.state.editor.clipboard.convert(msgData.payload.html);
+					    if (convert && convert.ops) {
+                            this.state.editor.setContents(convert.ops);
+                        }
 						break;
 					case 'SET_BACKGROUND_COLOR':
 						/* if (document) {
@@ -226,15 +229,17 @@ export default class ReactQuillEditor extends React.Component {
 					style={{
 						height: '100%',
 						display: 'flex',
+                        marginRight: 2,
 						flexDirection: 'column',
-						paddingVertical: 5
+						paddingVertical: 5,
+                        paddingBottom: 1,
 					}}
 				>
 					<div
 						id="editor"
 						style={{
 							fontSize: '20px',
-							height: 'calc(100% - 42px)'
+							height: 'calc(100% - 45px)'
 						}}
 					/>
 				</div>
