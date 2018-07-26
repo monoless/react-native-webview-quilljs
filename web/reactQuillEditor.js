@@ -1,4 +1,5 @@
-import Quill from './quill.js';
+import Quill from 'quill';
+import Keyboard from 'quill/modules/keyboard';
 import './quill.snow.css';
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -50,7 +51,6 @@ export default class ReactQuillEditor extends React.Component {
 			console.log('unable to add event listener');
 		}
 		this.printElement(`component mounted`);
-		console.log('mounted');
 		if (BROWSER_TESTING_ENABLED) {
 			this.loadEditor();
 		}
@@ -90,9 +90,26 @@ export default class ReactQuillEditor extends React.Component {
 					delta: this.state.editor.getContents()
 				});
 				that.addTextChangeEventToEditor();
+                that.keyboardBindings();
 			}
 		);
 	};
+
+	keyboardBindings() {
+        let obj = this.state.editor.keyboard.addBinding({ key: Keyboard.keys.ENTER }, {
+            collapsed: true,
+            format: { list: false },
+            prefix: /^2\.$/,
+            offset: 1,
+        },
+        (range, context) => {
+            this.state.editor.insertText(range.index, " _space_ ");
+        });
+
+        this.addMessageToQueue('SEND_LOG', {
+            editor: obj
+        });
+    }
 
 	componentWillUnmount() {
 		if (document) {
